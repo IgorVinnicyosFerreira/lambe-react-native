@@ -17,6 +17,8 @@ import {
  import { connect } from "react-redux";
  import { addPost } from "../store/actions/post";
 
+ const noUser = 'Você precisa estar logado para postar uma imagem!';
+
  class AddPhoto extends Component{
      state ={
          image:null,
@@ -24,18 +26,30 @@ import {
      }
       
      pickImage = () => {
+         if(!this.props.name){
+             Alert.alert("Atenção",noUser);
+             return
+         }
          ImagePicker.showImagePicker({
             title: 'Escolha a imagem',
             maxHeight: 600,
             maxWidth: 800
          }, res => {
-             if(!res.didCancel){
-                 this.setState({image: {uri:res.uri, base64:res.data}});
-             }
+            if(!res.didCancel){
+                this.setState({image: {uri:res.uri, base64:res.data}});
+            }
          })
+        
      }
 
      save = async () =>{
+        if(!this.props.name){
+            Alert.alert("Atenção",noUser);
+            return
+        }
+        if(!this.state.image)
+            return;
+            
         this.props.onAddPost({
             id: Math.random(),
             nickname: this.props.name,
@@ -68,6 +82,7 @@ import {
                         style={styles.input}
                         value={this.state.comment}
                         onChangeText={comment => this.setState({comment})}
+                        editable={this.props.name != null}
                     />
                     <TouchableOpacity onPress={this.save} style={styles.buttom}>
                         <Text style={styles.buttomText}>Salvar</Text>

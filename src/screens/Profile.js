@@ -20,9 +20,9 @@ import {
         const options = {email:this.props.email, secure:true}
         return(
             <View style={styles.container}>
-                <Gravatar options={{options}} style={styles.avatar}/>
+                <Gravatar options={{...options}} style={styles.avatar}/>
                 <Text style={styles.nickname}>{this.props.name}</Text>
-                <Text style={styles.email}>{options.email}</Text>
+                <Text style={styles.email}>{this.props.email}</Text>
                 <TouchableOpacity onPress={this.logout}
                     style={styles.buttom}
                 >
