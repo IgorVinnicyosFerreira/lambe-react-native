@@ -3,19 +3,16 @@ import { StyleSheet, FlatList, View } from "react-native";
 import Header from "../components/Header";
 import Post from "../components/Post";
 
-import posts from "../../assets/posts-list";
+import { connect } from "react-redux";
 
 class Feed extends Component{
-    state={
-        posts:posts
-    }
-
+   
     render(){
         return(
             <View style={styles.container}>
                 <Header />
                 <FlatList 
-                    data={this.state.posts}
+                    data={this.props.posts}
                     keyExtractor={item => `${item.id}`}
                     renderItem={({item})=> 
                             <Post key={item.id} 
@@ -37,4 +34,7 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Feed;
+const mapStateToProps = ({post}) => ({
+    posts : post.posts
+});
+export default connect(mapStateToProps)(Feed);
