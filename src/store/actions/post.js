@@ -1,4 +1,4 @@
-import { ADD_POST, ADD_COMMENT } from "./actionTypes";
+import { SET_POSTS, ADD_COMMENT } from "./actionTypes";
 import axios from "axios";
 
 export const addPost = post =>{
@@ -24,7 +24,32 @@ export const addPost = post =>{
         payload: post
     }*/
 }
+export const setPosts = posts =>{
+    return {
+        type: SET_POSTS,
+        payload: posts
+    }
+}
 
+export const fetchPosts = () =>{
+    return dispatch =>{
+        axios.get('/posts.json')
+        .catch(err => console.log(err))
+        .then(res => {
+            const rawPosts = res.data;
+            const posts = [];
+            for(let key in rawPosts){
+                
+                posts.push({
+                    ...rawPosts[key],
+                    id: key
+                });
+            }
+
+            dispatch(setPosts(posts));
+        });
+    }
+}
 export const addComment = comment =>{
     return{
         type: ADD_COMMENT,
