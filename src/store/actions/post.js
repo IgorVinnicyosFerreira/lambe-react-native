@@ -1,22 +1,43 @@
-import { SET_POSTS, ADD_COMMENT } from "./actionTypes";
+import { SET_POSTS, ADD_COMMENT, CREATING_POST, POST_CREATED } from "./actionTypes";
+import { setMessage } from './message';
 import axios from "axios";
 
 export const addPost = post =>{
     return dispatch => {
+        dispatch(creatingPost())
         axios({
             url: 'uploadImage',
             baseURL: 'https://us-central1-lambe-125a6.cloudfunctions.net/',
             method: 'post',
             data:{
                 image: post.image.base64
-            }
+            } 
         })
-        .catch(err => console.log(err.error))
+        .catch(err =>{
+            dispatch(setMessage({
+                title: 'Erro',
+                text: 'err.error'
+            }))
+         })
         .then(res =>{
             post.image = res.data.imageUrl;
             axios.post("posts.json", {...post})
-            .catch(err => console.log(err))
-            .then(res => console.log(res))
+            .catch(
+                err =>{
+                    dispatch(setMessage({
+                        title: 'Erro',
+                        text: 'err.error'
+                    }))
+                 }
+            )
+            .then(res => {
+                dispatch(fetchPosts());
+                dispatch(postCreated());
+                dispatch(setMessage({
+                    title: 'Success',
+                    text: 'Nova postagem'
+                }))
+            })
         });
     }
     /*return{
@@ -46,13 +67,34 @@ export const fetchPosts = () =>{
                 });
             }
 
-            dispatch(setPosts(posts));
+            dispatch(setPosts(posts.reverse()));
         });
     }
 }
-export const addComment = comment =>{
+export const addComment = payload =>{
+    return dispatch => {
+        axios.get(`/posts/${payload.postId}.json`)
+        .catch(err => console.log(err))
+        .then(res => {
+            const comments = res.data.comments || [];
+            comments.push(payload.comment);
+            axios.patch(`/posts/${payload.postId}.json`, {comments})
+            .catch(err => console.log(err))
+            .then(res =>{
+                dispatch(fetchPosts());
+            });
+        });
+    }
+}
+
+export const creatingPost = () =>{
     return{
-        type: ADD_COMMENT,
-        payload: comment
+        type: CREATING_POST,
+    }
+}
+
+export const postCreated = () =>{
+    return{
+        type: POST_CREATED
     }
 }

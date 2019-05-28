@@ -17,12 +17,19 @@ import {
         password: ''
      }
 
+     componentDidUpdate = prevProps =>{
+         if(prevProps.isLoading && !this.props.isLoading){
+            this.props.navigation.navigate('Profile');
+         }
+     }
+
      login = () => {
-         this.props.onLogin({...this.state})
-         this.props.navigation.navigate('Profile');
+         this.props.onLogin({...this.state})      
      }
 
     render(){
+        const buttomStyle = this.props.isLoading ? styles.buttomDisabled : styles.buttom;
+        
         return(
             <View style = {styles.container}>
                 <TextInput 
@@ -40,10 +47,10 @@ import {
                     value = {this.state.password}
                     onChangeText = {password => this.setState({password})}
                 />
-                <TouchableOpacity style={styles.buttom} onPress={this.login}>
+                <TouchableOpacity style={buttomStyle} onPress={this.login}>
                     <Text style={styles.buttomText}>Login</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.buttom} onPress={()=>{
+                <TouchableOpacity style={buttomStyle} onPress={()=>{
                      this.props.navigation.navigate('Register')
                 }}>
                     <Text style={styles.buttomText}>Criar nova conta</Text>
@@ -63,6 +70,11 @@ import {
         padding: 10,
         backgroundColor: '#4286f4',
     },
+    buttomDisabled: {
+        marginTop: 30,
+        padding: 10,
+        backgroundColor: '#AAA'
+     },
     buttomText: {
         fontSize: 20,
         color: '#fff'
@@ -77,9 +89,13 @@ import {
     }
 });
 
+const mapStateToProps = ({user}) => ({
+    isLoading: user.isLoading
+});
+
 const mapDispatchToProps = dispatch =>{
     return {
         onLogin: user => dispatch(login(user))
     }
 }
-export default connect(null, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

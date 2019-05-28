@@ -24,7 +24,13 @@ import {
          image:null,
          comment: '',
      }
-      
+    
+     componentDidUpdate = prevProps => {
+         if(prevProps.loading && !this.props.loading){
+            this.setState({image:null, comment:''})
+            this.props.navigation.navigate('Feed');
+         }
+     }
      pickImage = () => {
          if(!this.props.name){
              Alert.alert("Atenção",noUser);
@@ -59,12 +65,11 @@ import {
                 nickname: this.props.name,
                 comment: this.state.comment
             }]
-        });
-        this.setState({image:null, comment:''})
-        this.props.navigation.navigate('Feed');
+        });       
      }
 
      render(){
+         const styleButtom = this.props.loading ? styles.buttomDisabled : styles.buttom;
          return(
             <ScrollView>
                 <View style={styles.container} >
@@ -74,7 +79,7 @@ import {
                             style={styles.image}
                         />
                     </View> 
-                    <TouchableOpacity onPress={this.pickImage} style={styles.buttom}>
+                    <TouchableOpacity onPress={this.pickImage} style={styleButtom} disabled={this.props.loading}>
                         <Text style={styles.buttomText}>Escolha a foto</Text>
                     </TouchableOpacity>
                     <TextInput 
@@ -84,8 +89,11 @@ import {
                         onChangeText={comment => this.setState({comment})}
                         editable={this.props.name != null}
                     />
-                    <TouchableOpacity onPress={this.save} style={styles.buttom}>
-                        <Text style={styles.buttomText}>Salvar</Text>
+                    <TouchableOpacity 
+                        onPress={this.save} 
+                        style={styleButtom} 
+                        disabled={this.props.loading}>
+                            <Text style={styles.buttomText}>Salvar</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
@@ -119,6 +127,11 @@ import {
          padding: 10,
          backgroundColor: '#4286f4'
      },
+     buttomDisabled: {
+        marginTop: 30,
+        padding: 10,
+        backgroundColor: '#AAA'
+     },
      buttomText:{
         fontSize: 20,
         color: '#fff'
@@ -130,9 +143,10 @@ import {
 
  });
 
- const mapStateToProps = ({user}) => ({
+ const mapStateToProps = ({user, post}) => ({
         email: user.email,
         name: user.name,
+        loading: post.isUploading
  });
 
  const mapDispatchToProps = dispatch => ({
